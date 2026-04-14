@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold:         #C9A84C;
+  --gold-light:   #E8D5A3;
+  --gold-dim:     rgba(201,168,76,0.35);
+  --dark:         #1A1208;
+  --surface:      #F9F5EE;
+  --white:        #fff;
+  --text:         #2C1F0E;
+  --muted:        #7A6A52;
+  --border:       #DDD0B8;
+  --success-bg:   #D1FAE5;
+  --success-text: #065F46;
+  --success-bd:   #6EE7B7;
+  --danger-bg:    #FEE2E2;
+  --danger-text:  #991B1B;
+  --danger-bd:    #FCA5A5;
+  --loading-bg:   #F3F4F6;
+  --loading-text: #6B7280;
+  --loading-bd:   #E5E7EB;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text);
+}
+
+/* ─── TIPOGRAFIA ─────────────────────────────────────────────────────────── */
+.font-serif  { font-family: 'Playfair Display', serif; }
+.font-italic { font-style: italic; }
+
+/* ─── BOTÃO DOURADO ──────────────────────────────────────────────────────── */
+.btn-gold {
+  display: block; width: 100%;
+  background: var(--gold); color: var(--dark);
+  border: none; border-radius: 12px;
+  padding: 14px; font-size: 15px; font-weight: 500;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  text-decoration: none; transition: all .2s;
+  text-align: center;
+}
+.btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); }
+.btn-gold:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+/* ─── ORNAMENTO ──────────────────────────────────────────────────────────── */
+.ornament {
+  display: flex; align-items: center; gap: 12px;
+  justify-content: center; margin-bottom: 1.25rem;
+}
+.ornament-line    { flex: 1; height: 0.5px; background: var(--gold-dim); }
+.ornament-diamond { width: 8px; height: 8px; background: var(--gold); transform: rotate(45deg); }
+
+/* ─── BADGE ──────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-block; font-size: 10px; font-weight: 500;
+  padding: 3px 10px; border-radius: 20px; letter-spacing: .5px;
+}
+.badge-active  { background: var(--success-bg); color: var(--success-text); }
+.badge-used    { background: #F3F4F6; color: #6B7280; }
+
+/* ─── RESULT BOX ─────────────────────────────────────────────────────────── */
+.result-box {
+  margin-top: 1.5rem; padding: 1.5rem 1rem;
+  border-radius: 14px; display: none;
+  animation: pop .3s ease;
+}
+.result-box.valid   { background: var(--success-bg); border: 1px solid var(--success-bd); }
+.result-box.invalid { background: var(--danger-bg);  border: 1px solid var(--danger-bd); }
+.result-box.loading { background: var(--loading-bg); border: 1px solid var(--loading-bd); }
+.result-icon  { font-size: 36px; margin-bottom: 8px; }
+.result-title { font-size: 17px; font-weight: 500; margin-bottom: 4px; }
+.result-title.valid   { color: var(--success-text); }
+.result-title.invalid { color: var(--danger-text); }
+.result-title.loading { color: var(--loading-text); }
+.result-detail { font-size: 13px; opacity: .75; }
+
+/* ─── ANIMAÇÕES ──────────────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop {
+  from { transform: scale(.95); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.fade-up   { animation: fadeUp .6s ease both; }
+.fade-up-2 { animation: fadeUp .6s .2s ease both; }
+.fade-up-3 { animation: fadeUp .6s .35s ease both; }
