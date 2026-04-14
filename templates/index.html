@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Rincón de Alma — Gracias</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+  html, body {
+    min-height: 100vh;
+    background: linear-gradient(160deg, #1A1208 0%, #2C1F0E 55%, #3D2A12 100%);
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem 1rem;
+  }
+  .card {
+    max-width: 420px; width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 0.5px solid var(--gold-dim);
+    border-radius: 24px; padding: 2.75rem 2.25rem;
+    text-align: center;
+  }
+  .logo     { font-family: 'Playfair Display', serif; font-style: italic; font-size: 30px; color: var(--gold-light); letter-spacing: 1px; margin-bottom: 4px; }
+  .tagline  { font-size: 10px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,168,76,0.5); margin-bottom: 2rem; }
+  .gracias  { font-family: 'Playfair Display', serif; font-size: 23px; color: #fff; margin-bottom: .75rem; }
+  .body-txt { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.75; margin-bottom: 2rem; }
+  .body-txt strong { color: var(--gold-light); font-weight: 500; }
+
+  .code-box {
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 14px; padding: 1.4rem 1rem; margin-bottom: 1.5rem;
+  }
+  .code-label  { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,168,76,0.65); margin-bottom: 8px; }
+  .code-value  { font-family: 'Playfair Display', serif; font-size: 28px; letter-spacing: 7px; color: var(--gold-light); font-weight: 600; }
+  .code-expire { font-size: 11px; color: rgba(255,255,255,0.28); margin-top: 8px; }
+
+  .redirect-note { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 1rem; }
+  .countdown     { color: rgba(201,168,76,0.7); font-weight: 500; }
+  .msg-loading   { color: rgba(255,255,255,0.4); font-size: 14px; padding: 2rem 0; }
+  .msg-error     { color: #F87171; font-size: 13px; padding: 1rem 0; }
+</style>
+</head>
+<body>
+<div class="card fade-up">
+  <div class="ornament">
+    <div class="ornament-line"></div>
+    <div class="ornament-diamond"></div>
+    <div class="ornament-line"></div>
+  </div>
+  <div class="logo">El Rincón de Alma</div>
+  <div class="tagline">Restaurante</div>
+  <div class="gracias">¡Muchas gracias por tu visita!</div>
+  <p class="body-txt">
+    Tu opinión es muy importante para nosotros.<br>
+    Comparte tu experiencia en Google y<br>
+    <strong>presenta este código al camarero</strong><br>
+    para recibir tu cortesía del día.
+  </p>
+
+  <div id="codeSection">
+    <p class="msg-loading">Generando tu código...</p>
+  </div>
+
+  <div id="btnSection" style="display:none;" class="fade-up-3">
+    <a class="btn-gold" id="googleBtn" href="{{ google_url }}" target="_blank">
+      Evalúanos en Google ↗
+    </a>
+    <p class="redirect-note">Redireccionando en <span class="countdown" id="cdNum">8</span>s...</p>
+  </div>
+</div>
+
+<script>
+const GOOGLE_REVIEW_URL = "{{ google_url }}";
+
+async function init() {
+  try {
+    const res = await fetch("/api/gerar-codigo", { method: "POST", headers: { "Content-Type": "application/json" } });
+    const data = await res.json();
+
+    if(!data.success) throw new Error(data.error || "Erro desconhecido");
+
+    document.getElementById("codeSection").innerHTML = `
+      <div class="code-box fade-up-2">
+        <div class="code-label">Tu código de cortesía</div>
+        <div class="code-value">${data.code}</div>
+        <div class="code-expire">Válido hasta las 23:59 de hoy</div>
+      </div>
+    `;
+    document.getElementById("btnSection").style.display = "block";
+
+    let cd = 8;
+    const cdEl = document.getElementById("cdNum");
+    const timer = setInterval(() => {
+      cd--;
+      cdEl.textContent = cd;
+      if(cd <= 0) { clearInterval(timer); window.location.href = GOOGLE_REVIEW_URL; }
+    }, 1000);
+
+    document.getElementById("googleBtn").addEventListener("click", () => clearInterval(timer));
+
+  } catch(e) {
+    document.getElementById("codeSection").innerHTML = `<p class="msg-error">Error al generar código. Recarga la página.</p>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Validar Cortesia — El Rincón de Alma</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+  html, body {
+    min-height: 100vh; background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem 1rem;
+  }
+  .card {
+    width: 100%; max-width: 380px;
+    background: var(--white); border-radius: 24px;
+    border: 0.5px solid var(--border); padding: 2.5rem 2rem; text-align: center;
+  }
+  .logo     { font-family: 'Playfair Display', serif; font-style: italic; font-size: 20px; color: var(--gold); margin-bottom: 4px; }
+  .logo-sub { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); margin-bottom: 2rem; }
+  .title    { font-size: 20px; font-weight: 500; margin-bottom: 6px; }
+  .subtitle { font-size: 13px; color: var(--muted); margin-bottom: 2rem; line-height: 1.6; }
+
+  .code-input {
+    width: 100%; padding: 16px;
+    font-size: 20px; text-align: center;
+    letter-spacing: 4px; text-transform: uppercase;
+    border: 1.5px solid var(--border); border-radius: 12px;
+    font-family: monospace; outline: none; transition: border .2s;
+    margin-bottom: 12px; background: var(--surface); color: var(--text);
+  }
+  .code-input:focus { border-color: var(--gold); background: var(--white); }
+  .code-input::placeholder { letter-spacing: 2px; font-size: 15px; color: #BDB5A8; }
+
+  .new-btn {
+    display: block; margin-top: 1.25rem;
+    font-size: 13px; color: var(--gold); background: none;
+    border: none; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+<div class="card fade-up">
+  <div class="logo">El Rincón de Alma</div>
+  <div class="logo-sub">Área de serviço</div>
+  <div class="title">Validar Cortesia</div>
+  <p class="subtitle">Digite o código apresentado<br>pelo cliente no telemóvel.</p>
+
+  <input
+    class="code-input"
+    id="codeInput"
+    maxlength="18"
+    placeholder="ALMA-XXXX-XXXX-XXX"
+    oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9-]/g,'')"
+    onkeydown="if(event.key==='Enter')validateCode()"
+    autofocus
+  />
+  <button class="btn-gold" id="validateBtn" onclick="validateCode()">Validar Código</button>
+
+  <div class="result-box" id="resultBox">
+    <div class="result-icon"  id="resultIcon"></div>
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-detail" id="resultDetail"></div>
+    <button class="new-btn" onclick="resetForm()">Validar outro código</button>
+  </div>
+</div>
+
+<script>
+function showResult(type, icon, title, detail) {
+  const box = document.getElementById("resultBox");
+  box.className = "result-box " + type;
+  box.style.display = "block";
+  document.getElementById("resultIcon").textContent   = icon;
+  const t = document.getElementById("resultTitle");
+  t.textContent = title;
+  t.className = "result-title " + type;
+  document.getElementById("resultDetail").textContent = detail;
+}
+
+function resetForm() {
+  document.getElementById("resultBox").style.display = "none";
+  document.getElementById("codeInput").value = "";
+  document.getElementById("validateBtn").disabled = false;
+  document.getElementById("codeInput").focus();
+}
+
+async function validateCode() {
+  const code = document.getElementById("codeInput").value.trim().toUpperCase();
+  if(!code) return;
+
+  document.getElementById("validateBtn").disabled = true;
+  showResult("loading", "⏳", "A verificar...", "Por favor aguarda.");
+
+  try {
+    const res = await fetch("/api/validar-codigo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code })
+    });
+    const data = await res.json();
+
+    if(data.success) {
+      showResult("valid", "✓", data.message, `Código gerado às ${data.gerado_as}.`);
+    } else {
+      showResult("invalid", "✗", data.message, "");
+    }
+  } catch(e) {
+    showResult("invalid", "✗", "Erro de ligação.", "Verifica a internet e tenta novamente.");
+  }
+
+  document.getElementById("validateBtn").disabled = false;
+}
+</script>
+</body>
+</html>
