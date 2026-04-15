@@ -1,3 +1,7 @@
+
+
+import time
+start_time = time.time()
 from flask import Flask, render_template, request, jsonify
 from services.code_service import CodeService
 from services.supabase_client import SupabaseClient
@@ -66,7 +70,46 @@ def garcom():
 # ─── HEALTH CHECK (Render precisa disto) ──────────────────────────────────────
 @app.route("/health")
 def health():
-    return jsonify({ "status": "ok" }), 200
+    return {
+        "status": "ok",
+        "uptime_seconds": int(time.time() - start_time),
+        "service": "running"
+    }, 200
+@app.route("/ping")
+def ping():
+    return "pong"
+
+# ─── ESTATÍSTICAS GERAIS dashboard (total/used) ─────────────────────────────────────────
+@app.route("/api/stats")
+def stats():
+    data = db.table("scans").select("*").execute().data
+
+    total = len(data)
+    used = len([d for d in data if d["used"]])
+
+    return {
+        "total": total,
+        "used": used
+    }
+    
+# ─── AGRUPAR POR SEMANA (para gráfico) ─────────────────────────────────────────
+from datetime import datetime
+def group_by_week(data):
+    weeks = {}
+
+    for d in data:
+        dt = datetime.fromisoformat(d["created_at"])
+        year, week, _ = dt.isocalendar()
+
+        key = f"{year}-W{week}"
+
+        if key not in weeks:
+            weeks[key] = 0
+
+        weeks[key] += 1
+
+    return weeks
+#TODO SEPARAR TODAS AS ROTAS EM BLUEPRINTS PARA ORGANIZAR MELHOR O CÓDIGO
 
 
 if __name__ == "__main__":
