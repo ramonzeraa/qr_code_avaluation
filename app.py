@@ -82,7 +82,7 @@ def ping():
 # ─── ESTATÍSTICAS GERAIS dashboard (total/used) ─────────────────────────────────────────
 @app.route("/api/stats")
 def stats():
-    data = db.table("scans").select("*").execute().data
+    data = db.client.table("scans").select("*").execute().data
 
     total = len(data)
     used = len([d for d in data if d["used"]])
