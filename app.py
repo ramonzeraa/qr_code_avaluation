@@ -53,8 +53,8 @@ def painel():
 # ─── API DO PAINEL (dados em tempo real) ──────────────────────────────────────
 @app.route("/api/painel-dados", methods=["GET"])
 def painel_dados():
-    password = request.args.get("pw", "")
-    if password != Config.OWNER_PASSWORD:
+    password = request.headers.get("Authorization", "")
+    if password != f"Bearer {Config.OWNER_PASSWORD}":
         return jsonify({ "success": False, "message": "Não autorizado." }), 401
 
     dados = code_service.dados_do_dia()
